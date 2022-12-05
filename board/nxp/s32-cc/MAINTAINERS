@@ -1,0 +1,25 @@
+S32-CC BOARD
+M:	-
+S:	Maintained
+F:	board/nxp/s32-cc/
+F:	arch/arm/mach-s32/s32-cc
+F:	arch/arm/include/asm/arch-s32
+
+S32G274A-EVB BOARD
+M:	-
+S:	Maintained
+F:	configs/s32g2xxaevb_defconfig
+F:	include/configs/s32g2xxaevb.h
+
+S32G274A-RDB BOARD
+M:	-
+S:	Maintained
+F:	configs/s32g274ardb_defconfig
+F:	include/configs/s32g274ardb2.h
+
+S32R45 BOARD
+M:	-
+S:	Maintained
+F:	configs/s32r45_defconfig
+F:	include/configs/s32r45.h
+

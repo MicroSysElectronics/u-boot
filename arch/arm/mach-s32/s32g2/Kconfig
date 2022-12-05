@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: GPL-2.0+
+# Copyright 2022 NXP
+
+if ARCH_S32G2
+
+choice
+	prompt "S32G2 board select"
+	default TARGET_S32G274ARDB2
+
+config TARGET_S32G274ARDB2
+	bool "Support S32G274ARDB2 board"
+	help
+	  This board is based on S32G274A SoC. It is equipped with
+	  4 GB of RAM, 64MB of QSPI memory, 6 Ethernet Ports,
+	  M.2 and PCIe x1 expansion slots, USB, serial port,
+	  18 CAN ports, I2C and DSPI.
+	select NXP_S32GRDB_BOARD
+
+config TARGET_S32G2XXAEVB
+	bool "Support S32G2XXAEVB board"
+	help
+	  This board is based on S32G2 family of SoCs. It is equipped with
+	  4 GB of RAM, 64MB of QSPI memory, PCIe slot, USB, serial port,
+	  I2C and DSPI.
+	imply DM_USB
+	imply SAF1508BET_USB_PHY
+	imply USB
+	imply USB_EHCI_HCD
+	imply USB_ULPI
+	select NXP_S32GEVB_BOARD
+
+config TARGET_S32G274ABLUEBOX3
+	bool "Support S32G274A BlueBox3 board"
+	help
+	  This board is a dual SoC board with S32G2 and LX2,
+	  where these two SoCs are connected together via PCIe.
+	  Also, this board has rich networking features, such as:
+	  PFE, DPAA2 and three sja1110 switches.
+	imply ADC
+	imply CMD_EEPROM
+	imply I2C_EEPROM
+	imply LAST_STAGE_INIT
+	imply NXP_S32CC_BOARD_COMMON
+	imply PHY
+	imply PHYLIB
+	imply PHY_GIGE
+	imply RGMII
+	imply SARADC_S32CC
+	select SPI_FLASH_STMICRO
+
+config TARGET_S32G274AEMU
+	bool "Support S32G274A ZeBu"
+	select TARGET_TYPE_S32GEN1_EMULATOR
+
+config TARGET_S32G274ASBC2
+    bool "Support s32g274asbc2"
+    select MICROSYS_MPXS32G274A
+    select MICROSYS_CRXS32G2
+    help
+      S32G274ASBC Revision 2
+
+config TARGET_S32G274ASBC3
+    bool "Support s32g274asbc3"
+    select MICROSYS_MPXS32G274A
+    select MICROSYS_CRXS32G3
+    help
+      S32G274ASBC Revision 3
+
+endchoice
+
+config FSL_PFENG
+	default y if !TARGET_TYPE_S32GEN1_EMULATOR
+
+source "board/nxp/s32-cc/s32g/Kconfig"
+source "board/nxp/s32g274ardb2/Kconfig"
+source "board/nxp/s32g2xxaevb/Kconfig"
+source "board/nxp/s32g274abluebox3/Kconfig"
+source "board/nxp/s32g274aemu/Kconfig"
+source "board/microsys/mpxs32g274a/Kconfig"
+source "board/microsys/s32g274asbc2/Kconfig"
+source "board/microsys/s32g274asbc3/Kconfig"
+
+endif

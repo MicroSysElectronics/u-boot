@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: GPL-2.0+
+# Copyright 2022 NXP
+
+if ARCH_S32R45
+
+choice
+	prompt "S32R45 board select"
+	default TARGET_S32R45EVB
+
+config TARGET_S32R45EVB
+	bool "Support S32R45EVB board"
+	help
+	  This board is based on S32R45 SoC. Is is equipped with
+	  4GB of RAM, 64MB of QSPI memory, PCIe slot, serial port,
+	  I2C and DSPI.
+	imply ADC
+	imply CMD_E1000
+	imply CMD_EEPROM
+	imply E1000
+	imply I2C_EEPROM
+	imply NXP_S32CC_BOARD_COMMON
+	imply PHY_AQUANTIA
+	imply SARADC_S32CC
+	select SPI_FLASH_MACRONIX
+
+config TARGET_S32R45EMU
+	bool "Support S32R45 ZeBu"
+	select TARGET_TYPE_S32GEN1_EMULATOR
+
+endchoice
+
+source "board/nxp/s32r45evb/Kconfig"
+source "board/nxp/s32r45emu/Kconfig"
+
+endif
