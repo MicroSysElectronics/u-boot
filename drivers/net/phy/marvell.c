@@ -392,11 +392,6 @@ static int m88e151x_config(struct phy_device *phydev)
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_MARVELL_PHY_PAGE, 0);
 	}
 
-#if defined(CONFIG_CARRIER_CRX07) \
-    || defined(CONFIG_MICROSYS_CRXS32G) \
-    || defined(CONFIG_MICROSYS_CRXS32G2) \
-    || defined(CONFIG_MICROSYS_CRXS32G3)
-
 	// Switch to LED page:
 	phy_write(phydev, MDIO_DEVAD_NONE, MII_MARVELL_PHY_PAGE, 3);
 
@@ -423,7 +418,7 @@ static int m88e151x_config(struct phy_device *phydev)
 		for (i=0; i<3; i++)
 			reg &= ~(0x3<<2*i);
 
-		// LED[2]: Off - tristate
+		// LED[2]: On - low, Off - tristate
 		reg &= ~(0x03 << 4);
 		reg |= 0b10 << 4;
 	}
@@ -431,18 +426,28 @@ static int m88e151x_config(struct phy_device *phydev)
 	phy_write(phydev, MDIO_DEVAD_NONE, 17, reg);
 
 	/*
-	 * Configure LED[2] pin as INTn:
+	 * Take care that INTn is disabled:
 	 */
 	reg = phy_read(phydev, MDIO_DEVAD_NONE, 18);
-	if (!(reg & BIT(7))) {
-	    phy_write(phydev, MDIO_DEVAD_NONE, 18, reg | BIT(7));
+	if (reg & BIT(7)) {
+		reg &= ~BIT(7); // disable interrupt
+		reg |= BIT(11); // set interrupt polarity to low
+		phy_write(phydev, MDIO_DEVAD_NONE, 18, reg);
 	}
+
+	/*
+	 * Summary for pin LED[2]/INTn
+	 * ===========================
+	 *
+	 * 1. LED[2] Control is set to Force Hi-Z
+	 * 2. LED[2] Polarity is set to 'On - drive LED[2] low,
+	 *    Off - tristate LED[2]'
+	 * 3. Interrupt is disabled.
+	 */
 
 	// Switch back to copper page:
 	phy_write(phydev, MDIO_DEVAD_NONE, MII_MARVELL_PHY_PAGE, 0);
 	phy_write(phydev, MDIO_DEVAD_NONE, 18, 0); // disable all IRQs
-
-#endif
 
 	/* soft reset */
 	phy_reset(phydev);
