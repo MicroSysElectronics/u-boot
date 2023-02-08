@@ -40,6 +40,7 @@
 
 #define SERIALNO_NAME     "serial#"
 #define BOARDVERSION_NAME "board_version"
+#define PRODUCTINFO_NAME  "product_info"
 
 /**
  * static eeprom: EEPROM layout for CCID or NXID formats
@@ -79,7 +80,13 @@ static struct __attribute__ ((__packed__)) eeprom {
 	 * @see Redmine #4505
 	 */
 	u8 board_version[16];
-	u8 res_2[90-16];     /* 0xa2 - 0xfb Reserved */
+	/*
+	 * Wish to store additional product related
+	 * information in EEPROM.
+	 * @see Redmine #4875
+	 */
+	u8 product_info[64];
+	u8 res_2[90-16-64];     /* 0xa2 - 0xfb Reserved */
 	u32 crc;          /* 0xfc - 0xff CRC32 checksum */
 #endif
 } e;
@@ -136,6 +143,8 @@ static void show_eeprom(void)
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
 	/* Board version */
 	printf("Board version: %s\n", e.board_version);
+	/* product information */
+	printf("Product information: %s\n", e.product_info);
 #endif
 
 	/* Show MAC addresses  */
@@ -221,6 +230,8 @@ static int read_eeprom(void)
 	if (e.errata[0] == 0xff) e.errata[0] = 0;
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
 	if (e.board_version[0] == 0xff) e.board_version[0] = 0;
+	if (e.product_info[0] == 0xff)
+		e.product_info[0] = 0;
 #endif
 
 #ifdef DEBUG
@@ -478,6 +489,11 @@ int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		strncpy((char *)e.board_version, argv[2], sizeof(e.board_version) - 1);
 		update_crc();
 		break;
+	case 'a':	/* product info area */
+		memset(e.product_info, 0, sizeof(e.product_info));
+		strncpy((char *)e.product_info, argv[2], sizeof(e.product_info) - 1);
+		update_crc();
+		break;
 #endif
 	case 'e':	/* errata */
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
@@ -561,6 +577,7 @@ int mac_read_from_eeprom(void)
 
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
 	env_set(BOARDVERSION_NAME, (char*) e.board_version);
+	env_set(PRODUCTINFO_NAME, (char*) e.product_info);
 #endif
 
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
@@ -740,6 +757,13 @@ int fix_eeprom_mac_addresses(void)
 	if (var) {
 		memset(e.board_version, 0, sizeof(e.board_version));
 		strncpy((char *)e.board_version, var, sizeof(e.board_version) - 1);
+	}
+
+	// Save product information:
+	var = env_get(PRODUCTINFO_NAME);
+	if (var) {
+		memset(e.product_info, 0, sizeof(e.product_info));
+		strncpy((char *)e.product_info, var, sizeof(e.product_info) - 1);
 	}
 
 	update_crc();

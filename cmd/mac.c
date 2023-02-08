@@ -31,4 +31,6 @@ U_BOOT_CMD(
 	"    - program MAC addr for port X [X=0,1..] to colon separated string\n"
 	"mac board string\n"
 	"    - program board version to value string\n"
+	"mac area string\n"
+	"    - program product info area to value string\n"
 );
